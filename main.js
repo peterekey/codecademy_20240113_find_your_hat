@@ -1,5 +1,4 @@
 const prompt = require('prompt-sync')({sigint: true});
-const readline = require('readline')
 
 const hat = '^';
 const hole = 'O';
@@ -26,21 +25,21 @@ class Field {
         return output
     }
 
-    getPlayerPosition() {
-        let playerRow
-        let playerCol
+    getPosition(character) {
+        let positionRow
+        let positionCol
         for (let row = 0; row < myField.field.length; row++) {
-            const checkForPlayer = myField.field[row].indexOf('*')
+            const checkForPlayer = myField.field[row].indexOf(character)
             if (checkForPlayer != -1) {
-                playerRow = row
-                playerCol = checkForPlayer
+                positionRow = row
+                positionCol = checkForPlayer
             }
         }
-        return {playerRow, playerCol}
+        return {positionRow, positionCol}
     }
 
     moveRight() {
-        const {playerRow, playerCol} = this.getPlayerPosition()
+        const {positionRow: playerRow, positionCol: playerCol} = this.getPosition('*')
 
         // Check if moving right would move the player out of bounds
         if(playerCol + 1 > myField.field[playerRow].length - 1) {
@@ -48,10 +47,15 @@ class Field {
             process.exit()
         }        
 
-        // Check if moving left would move the player into a hole
-        const holeRow = myField.field[playerRow].indexOf('O')
-        if (playerRow + 1 === holeRow) {
+        // Check if moving right would move the player into a hole
+        if (myField.field[playerRow][playerCol + 1] === 'O') {
             console.log('You fell down a hole!')
+            process.exit(0)
+        }
+
+        // Check if moving right would cause the character to win the game
+        if (myField.field[playerRow][playerCol + 1] === '^') {
+            console.log('You win!')
             process.exit(0)
         }
 
@@ -64,7 +68,7 @@ class Field {
     }
 
     moveLeft() {
-        const {playerRow, playerCol} = this.getPlayerPosition()
+        const {positionRow: playerRow, positionCol: playerCol} = this.getPosition('*')
 
         // Check if moving left would move the player out of bounds
         if(playerCol - 1 < 0) {
@@ -73,9 +77,14 @@ class Field {
         }        
 
         // Check if moving left would move the player into a hole
-        const holeRow = myField.field[playerRow].indexOf('O')
-        if (playerRow - 1 === holeRow) {
+        if (myField.field[playerRow][playerCol - 1] === 'O') {
             console.log('You fell down a hole!')
+            process.exit(0)
+        }
+
+        // Check if moving left would cause the character to win the game
+        if (myField.field[playerRow][playerCol - 1] === '^') {
+            console.log('You win!')
             process.exit(0)
         }
 
@@ -88,17 +97,22 @@ class Field {
     }
 
     moveDown() {
-        const {playerRow, playerCol} = this.getPlayerPosition()
+        const {positionRow: playerRow, positionCol: playerCol} = this.getPosition('*')
 
-        if(playerRow+1 > myField.field.length) {
+        if(playerRow + 1 > myField.field.length - 1) {
             console.log('You moved out of bounds!')
             process.exit()
         }
 
         // Check if moving down would move the player into a hole
-        const holeCol = myField.field[playerRow + 1].indexOf('O')
-        if (playerCol === holeCol) {
+        if (myField.field[playerRow + 1][playerCol] === 'O') {
             console.log('You fell down a hole!')
+            process.exit(0)
+        }
+
+        // Check if moving down would cause the character to win the game
+        if (myField.field[playerRow + 1][playerCol] === '^') {
+            console.log('You win!')
             process.exit(0)
         }
 
@@ -111,19 +125,23 @@ class Field {
     }
 
     moveUp() {
-        // Find the player's row and column index
-        const {playerRow, playerCol} = this.getPlayerPosition()
+        const {positionRow: playerRow, positionCol: playerCol} = this.getPosition('*')
 
         // Check if moving up would move the player off the board
-        if (playerRow-1 < 0) {
+        if (playerRow - 1 < 0) {
             console.log('You moved out of bounds!')
             process.exit(0)
         }
 
         // Check if moving up would move the player into a hole
-        const holeCol = myField.field[playerRow - 1].indexOf('O')
-        if (playerCol === holeCol) {
+        if (myField.field[playerRow - 1][playerCol] === 'O') {
             console.log('You fell down a hole!')
+            process.exit(0)
+        }
+
+        // Check if moving up would cause the character to win the game
+        if (myField.field[playerRow - 1][playerCol] === '^') {
+            console.log('You win!')
             process.exit(0)
         }
 
