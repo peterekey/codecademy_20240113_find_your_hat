@@ -6,8 +6,8 @@ const fieldCharacter = '░';
 const pathCharacter = '*';
 
 class Field {
-    constructor(arr) {
-        this._field = arr
+    constructor(rows, cols, holesPercentage) {
+        this._field = this.generateField(rows, cols, holesPercentage)
     }
 
     get field() {
@@ -23,6 +23,57 @@ class Field {
             }
         }
         return output
+    }
+
+    generateField(rows, cols, holesPercentage) {
+        const finalField = []
+
+        for (let row = 0; row < rows; row++) {
+            const generatedRow = []
+            for (let col = 0; col < cols; col++) {
+                generatedRow.push('░')
+            }
+            finalField.push(generatedRow)
+        }
+
+        finalField[0][0] = '*'
+
+        // Set hat position
+        let hatRow
+        let hatCol
+        while(hatRow == null && hatCol == null || hatRow === 0 && hatCol === 0) {
+            hatRow = Math.floor(Math.random() * rows)
+            hatCol = Math.floor(Math.random() * cols)                    
+        }
+
+        finalField[hatRow][hatCol] = '^'
+
+        // Set holes
+        const fieldCount = rows * cols
+        const requiredHoles = Math.floor(fieldCount * holesPercentage)
+        console.log(`There are ${fieldCount} fields and so ${holesPercentage} of that is ${requiredHoles}`)
+        let holes = []
+        for (let i = 0; i < requiredHoles; i++) {
+            let holeRow
+            let holeCol
+            while (
+                holeRow == null && holeCol == null || 
+                holeRow === 0 && holeCol === 0 || 
+                holeRow === hatRow && holeCol === hatCol || 
+                holes.some(holeCoords => holeCoords.every((value, index) => value === [holeRow, holeCol][index]))
+            ) {
+                holeRow = Math.floor(Math.random() * rows)
+                holeCol = Math.floor(Math.random() * cols)
+            }
+            holes.push([holeRow, holeCol])
+        }
+        console.log('Holes are now at ', holes)
+        for (const holeCoordinate of holes) {
+            
+            finalField[holeCoordinate[0]][holeCoordinate[1]] = 'O'
+        }
+
+        return finalField
     }
 
     getPosition(character) {
@@ -177,12 +228,8 @@ const handleInput = userInput => {
 
 }
 
-let myField = new Field([
-    ['*', '░', 'O'],
-    ['░', 'O', '░'],
-    ['░', '^', '░'],
-  ]);
 
+let myField = new Field(20, 20, 0.30)
 console.clear()
 process.stdout.write(myField.print + '\n' + 'Which way? ')
 process.stdin.on('data', handleInput)
